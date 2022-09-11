@@ -11,6 +11,7 @@ CALICOCTL_IMAGE       ?=ctl
 BUILD_IMAGES          ?=$(CALICOCTL_IMAGE)
 RELEASE_BRANCH_PREFIX ?= release
 DEV_TAG_SUFFIX        ?= 0.dev
+RELEASE_LDFLAGS       ?=""
 
 # Remove any excluded architectures since for calicoctl we want to build everything.
 EXCLUDEARCH?=
@@ -34,7 +35,7 @@ CALICOCTL_GIT_REVISION?=$(shell git rev-parse --short HEAD)
 
 LDFLAGS=-ldflags "-X $(PACKAGE_NAME)/calicoctl/commands.VERSION=$(GIT_VERSION) \
 	-X $(PACKAGE_NAME)/calicoctl/commands.GIT_REVISION=$(CALICOCTL_GIT_REVISION) \
-	-X $(PACKAGE_NAME)/calicoctl/commands/common.VERSION=$(GIT_VERSION)"
+	-X $(PACKAGE_NAME)/calicoctl/commands/common.VERSION=$(GIT_VERSION) $(RELEASE_LDFLAGS)"
 
 .PHONY: clean
 ## Clean enough that a new release build will be clean

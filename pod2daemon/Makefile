@@ -8,6 +8,7 @@ FLEXVOL_IMAGE   ?=pod2daemon-flexvol
 CSI_IMAGE       ?=csi
 REGISTRAR_IMAGE ?=node-driver-registrar
 BUILD_IMAGES    ?=$(FLEXVOL_IMAGE) $(CSI_IMAGE) $(REGISTRAR_IMAGE)
+RELEASE_FLAGS   ?=""
 
 ###############################################################################
 # Download and include ../lib.Makefile before anything else
@@ -66,7 +67,7 @@ bin/csi-driver-armv7: ARCH=armv7
 bin/csi-driver-ppc64le: ARCH=ppc64le
 bin/csi-driver-s390x: ARCH=s390x
 bin/csi-driver-%: $(SRC_FILES)
-	$(DOCKER_RUN) -e CGO_ENABLED=$(CGO_ENABLED) $(CALICO_BUILD) go build -v -o bin/csi-driver-$(ARCH) csidriver/main.go
+	$(DOCKER_RUN) -e CGO_ENABLED=$(CGO_ENABLED) $(CALICO_BUILD) go build -v $(RELEASE_FLAGS) -o bin/csi-driver-$(ARCH) csidriver/main.go
 
 UPSTREAM_REGISTRAR_PROJECT ?= kubernetes-csi/$(REGISTRAR_IMAGE)
 UPSTREAM_REGISTRAR_TAG     ?= v2.5.1

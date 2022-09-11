@@ -152,8 +152,10 @@ blocks:
       matrix:
       - env_var: ARCH
         values: [ "arm64", "ppc64le" ]
+      - env_var: LDFLAGS
+        values: [ "-w -s" ]
       commands:
-      - ../.semaphore/run-and-monitor image-$ARCH.log make image ARCH=$ARCH
+      - ../.semaphore/run-and-monitor image-$ARCH.log make image ARCH=$ARCH LDFLAGS=$LDFLAGS
 
 - name: "libcalico-go"
   run:
@@ -253,10 +255,12 @@ blocks:
       matrix:
       - env_var: ARCH
         values: [ "arm64", "armv7", "ppc64le", "s390x" ]
+      - env_var: LDFLAGS
+        values: [ "-w -s" ]
       commands:
       # Only building the code, not the image here because the felix image is now only used for FV tests, which
       # only run on AMD64 at the moment.
-      - ../.semaphore/run-and-monitor build-$ARCH.log make ARCH=$ARCH build
+      - ../.semaphore/run-and-monitor build-$ARCH.log make ARCH=$ARCH LDFLAGS=$LDFLAGS build
 
 - name: "Felix: Build Windows binaries"
   run:
@@ -471,8 +475,10 @@ blocks:
       matrix:
       - env_var: ARCH
         values: [ "arm64", "armv7", "ppc64le", "s390x" ]
+      - env_var: LDFLAGS
+        values: [ "-w -s" ]
       commands:
-      - ../.semaphore/run-and-monitor image-$ARCH.log make image ARCH=$ARCH
+      - ../.semaphore/run-and-monitor image-$ARCH.log make image ARCH=$ARCH LDFLAGS=$LDFLAGS
     - name: "Build Windows archive"
       commands:
       - ../.semaphore/run-and-monitor build-windows-archive.log make build-windows-archive
