@@ -11,7 +11,6 @@ CALICOCTL_IMAGE       ?=ctl
 BUILD_IMAGES          ?=$(CALICOCTL_IMAGE)
 RELEASE_BRANCH_PREFIX ?= release
 DEV_TAG_SUFFIX        ?= 0.dev
-RELEASE_LDFLAGS       ?=""
 
 # Remove any excluded architectures since for calicoctl we want to build everything.
 EXCLUDEARCH?=
@@ -33,9 +32,12 @@ TEST_CONTAINER_NAME ?= calico/test
 
 CALICOCTL_GIT_REVISION?=$(shell git rev-parse --short HEAD)
 
-LDFLAGS=-ldflags "-X $(PACKAGE_NAME)/calicoctl/commands.VERSION=$(GIT_VERSION) \
+LDFLAGS=-ldflags "\
+  -X $(PACKAGE_NAME)/calicoctl/commands.VERSION=$(GIT_VERSION) \
 	-X $(PACKAGE_NAME)/calicoctl/commands.GIT_REVISION=$(CALICOCTL_GIT_REVISION) \
-	-X $(PACKAGE_NAME)/calicoctl/commands/common.VERSION=$(GIT_VERSION) $(RELEASE_LDFLAGS)"
+	-X $(PACKAGE_NAME)/calicoctl/commands/common.VERSION=$(GIT_VERSION) \
+	-X main.VERSION=$(GIT_VERSION) \
+	$(RELEASE_LDFLAGS)"
 
 .PHONY: clean
 ## Clean enough that a new release build will be clean
@@ -116,7 +118,7 @@ CALICO_VERSION_HELPER_SRC=$(CALICO_VERSION_HELPER_DIR)/calico_version_helper.go
 version-helper: $(CALICO_VERSION_HELPER_BIN)
 $(CALICO_VERSION_HELPER_BIN): $(CALICO_VERSION_HELPER_SRC)
 	$(DOCKER_RUN) $(CALICO_BUILD) sh -c 'cd /go/src/$(PACKAGE_NAME) && \
-		go build -v -o $(CALICO_VERSION_HELPER_BIN) -ldflags "-X main.VERSION=$(GIT_VERSION)" $(CALICO_VERSION_HELPER_SRC)'
+		go build -v -o $(CALICO_VERSION_HELPER_BIN) $(LDFLAGS) $(CALICO_VERSION_HELPER_SRC)'
 
 ###############################################################################
 # UTs

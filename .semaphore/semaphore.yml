@@ -152,10 +152,10 @@ blocks:
       matrix:
       - env_var: ARCH
         values: [ "arm64", "ppc64le" ]
-      - env_var: LDFLAGS
+      - env_var: RELEASE_LDFLAGS
         values: [ "-w -s" ]
       commands:
-      - ../.semaphore/run-and-monitor image-$ARCH.log make image ARCH=$ARCH LDFLAGS=$LDFLAGS
+      - ../.semaphore/run-and-monitor image-$ARCH.log make image ARCH=$ARCH RELEASE_LDFLAGS=$RELEASE_LDFLAGS
 
 - name: "libcalico-go"
   run:
@@ -475,10 +475,10 @@ blocks:
       matrix:
       - env_var: ARCH
         values: [ "arm64", "armv7", "ppc64le", "s390x" ]
-      - env_var: LDFLAGS
+      - env_var: RELEASE_LDFLAGS
         values: [ "-w -s" ]
       commands:
-      - ../.semaphore/run-and-monitor image-$ARCH.log make image ARCH=$ARCH LDFLAGS=$LDFLAGS
+      - ../.semaphore/run-and-monitor image-$ARCH.log make image ARCH=$ARCH RELEASE_LDFLAGS=$RELEASE_LDFLAGS
     - name: "Build Windows archive"
       commands:
       - ../.semaphore/run-and-monitor build-windows-archive.log make build-windows-archive

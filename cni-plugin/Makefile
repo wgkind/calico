@@ -53,6 +53,17 @@ BIN=bin/$(ARCH)
 DEPLOY_CONTAINER_MARKER=$(DEPLOY_CONTAINER_STATIC_MARKER)
 endif
 
+# Calculate a timestamp for any build artefacts.
+DATE:=$(shell date -u +'%FT%T%z')
+
+LDFLAGS=-ldflags "\
+	-X $(PACKAGE_NAME)/pkg/lifecycle/startup.VERSION=$(GIT_VERSION) \
+	-X $(PACKAGE_NAME)/buildinfo.GitVersion=$(GIT_DESCRIPTION) \
+	-X $(PACKAGE_NAME)/buildinfo.BuildDate=$(DATE) \
+	-X $(PACKAGE_NAME)/buildinfo.GitRevision=$(GIT_COMMIT) \
+	-X main.VERSION=$(GIT_VERSION) \
+	$(RELEASE_LDFLAGS)"
+
 .PHONY: clean
 clean:
 	# Clean .created files which indicate images / releases have been built.
@@ -90,7 +101,7 @@ $(BIN)/install binary: $(SRC_FILES)
 	-mkdir -p .go-pkg-cache
 	-mkdir -p $(BIN)
 	$(DOCKER_RUN) -e CGO_ENABLED=$(CGO_ENABLED) $(CALICO_BUILD) sh -c '\
-		$(GIT_CONFIG_SSH) go build -v -o $(BIN)/install -ldflags "$(RELEASE_LDFLAGS) -X main.VERSION=$(GIT_VERSION)" $(PACKAGE_NAME)/cmd/calico && \
+		$(GIT_CONFIG_SSH) go build -v -o $(BIN)/install $(LDFLAGS) $(PACKAGE_NAME)/cmd/calico && \
 		$(CHECK_BORINGSSL)'
 
 ## Build the Calico network plugin and ipam plugins for Windows
@@ -99,8 +110,8 @@ $(BIN_WIN)/calico.exe $(BIN_WIN)/calico-ipam.exe: $(SRC_FILES)
 	-e GOOS=windows \
 	-e CGO_ENABLED=1 \
 	    $(CALICO_BUILD) sh -c '$(GIT_CONFIG_SSH) \
-		go build -v -o $(BIN_WIN)/calico.exe -ldflags "$(RELEASE_LDFLAGS) -X main.VERSION=$(GIT_VERSION)" $(PACKAGE_NAME)/cmd/calico && \
-		go build -v -o $(BIN_WIN)/calico-ipam.exe -ldflags "$(RELEASE_LDFLAGS) -X main.VERSION=$(GIT_VERSION)" $(PACKAGE_NAME)/cmd/calico'
+		go build -v -o $(BIN_WIN)/calico.exe $(LDFLAGS) $(PACKAGE_NAME)/cmd/calico && \
+		go build -v -o $(BIN_WIN)/calico-ipam.exe $(LDFLAGS) $(PACKAGE_NAME)/cmd/calico'
 
 
 ###############################################################################

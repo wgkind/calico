@@ -1,5 +1,4 @@
 PACKAGE_NAME = github.com/projectcalico/calico
-RELEASE_LDFLAGS   ?=""
 
 include metadata.mk 
 include lib.Makefile
@@ -62,14 +61,14 @@ bin/tigera-operator-$(GIT_VERSION).tgz: bin/helm $(shell find ./charts/tigera-op
 
 # Build all Calico images for the current architecture.
 image:
-	$(MAKE) -C pod2daemon image IMAGETAG=$(GIT_VERSION) VALIDARCHES=$(ARCH) RELEASE_LDFLAGS=$(RELEASE_LDFLAGS)
-	$(MAKE) -C calicoctl image IMAGETAG=$(GIT_VERSION) VALIDARCHES=$(ARCH) RELEASE_LDFLAGS=$(RELEASE_LDFLAGS)
-	$(MAKE) -C cni-plugin image IMAGETAG=$(GIT_VERSION) VALIDARCHES=$(ARCH) RELEASE_LDFLAGS=$(RELEASE_LDFLAGS)
-	$(MAKE) -C apiserver image IMAGETAG=$(GIT_VERSION) VALIDARCHES=$(ARCH) RELEASE_LDFLAGS=$(RELEASE_LDFLAGS)
-	$(MAKE) -C kube-controllers image IMAGETAG=$(GIT_VERSION) VALIDARCHES=$(ARCH) RELEASE_LDFLAGS=$(RELEASE_LDFLAGS)
-	$(MAKE) -C app-policy image IMAGETAG=$(GIT_VERSION) VALIDARCHES=$(ARCH) RELEASE_LDFLAGS=$(RELEASE_LDFLAGS)
-	$(MAKE) -C typha image IMAGETAG=$(GIT_VERSION) VALIDARCHES=$(ARCH) RELEASE_LDFLAGS=$(RELEASE_LDFLAGS)
-	$(MAKE) -C node image IMAGETAG=$(GIT_VERSION) VALIDARCHES=$(ARCH) RELEASE_LDFLAGS=$(RELEASE_LDFLAGS)
+	$(MAKE) -C pod2daemon image IMAGETAG=$(GIT_VERSION) VALIDARCHES=$(ARCH)
+	$(MAKE) -C calicoctl image IMAGETAG=$(GIT_VERSION) VALIDARCHES=$(ARCH)
+	$(MAKE) -C cni-plugin image IMAGETAG=$(GIT_VERSION) VALIDARCHES=$(ARCH)
+	$(MAKE) -C apiserver image IMAGETAG=$(GIT_VERSION) VALIDARCHES=$(ARCH)
+	$(MAKE) -C kube-controllers image IMAGETAG=$(GIT_VERSION) VALIDARCHES=$(ARCH)
+	$(MAKE) -C app-policy image IMAGETAG=$(GIT_VERSION) VALIDARCHES=$(ARCH)
+	$(MAKE) -C typha image IMAGETAG=$(GIT_VERSION) VALIDARCHES=$(ARCH)
+	$(MAKE) -C node image IMAGETAG=$(GIT_VERSION) VALIDARCHES=$(ARCH)
 
 ###############################################################################
 # Run local e2e smoke test against the checked-out code 

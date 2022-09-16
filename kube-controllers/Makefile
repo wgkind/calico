@@ -31,6 +31,16 @@ else
 CGO_ENABLED=0
 endif
 
+# Calculate a timestamp for any build artefacts.
+DATE:=$(shell date -u +'%FT%T%z')
+
+LDFLAGS=-ldflags "\
+	-X $(PACKAGE_NAME)/pkg/lifecycle/startup.VERSION=$(GIT_VERSION) \
+	-X $(PACKAGE_NAME)/buildinfo.GitVersion=$(GIT_DESCRIPTION) \
+	-X $(PACKAGE_NAME)/buildinfo.BuildDate=$(DATE) \
+	-X $(PACKAGE_NAME)/buildinfo.GitRevision=$(GIT_COMMIT) \
+	$(RELEASE_LDFLAGS)"
+
 ###############################################################################
 
 ## Removes all build artifacts.
@@ -58,13 +68,13 @@ bin/kube-controllers-linux-$(ARCH): $(SRC_FILES)
 	$(DOCKER_RUN) \
 	  -e CGO_ENABLED=$(CGO_ENABLED) \
 	  -v $(CURDIR)/bin:/go/src/$(PACKAGE_NAME)/bin \
-	  $(CALICO_BUILD) go build -v -o bin/kube-controllers-$(BUILDOS)-$(ARCH) -ldflags "$(RELEASE_LDFLAGS) -X main.VERSION=$(GIT_VERSION)" ./cmd/kube-controllers/
+	  $(CALICO_BUILD) go build -v -o bin/kube-controllers-$(BUILDOS)-$(ARCH) $(LDFLAGS) -X main.VERSION=$(GIT_VERSION)" ./cmd/kube-controllers/
 
 bin/check-status-linux-$(ARCH): $(SRC_FILES)
 	$(DOCKER_RUN) \
 	  -e CGO_ENABLED=$(CGO_ENABLED) \
 	  -v $(CURDIR)/bin:/go/src/$(PACKAGE_NAME)/bin \
-	  $(CALICO_BUILD) go build -v -o bin/check-status-$(BUILDOS)-$(ARCH) -ldflags "$(RELEASE_LDFLAGS) -X main.VERSION=$(GIT_VERSION)" ./cmd/check-status/
+	  $(CALICO_BUILD) go build -v -o bin/check-status-$(BUILDOS)-$(ARCH) $(LDFLAGS) -X main.VERSION=$(GIT_VERSION)" ./cmd/check-status/
 
 bin/kubectl-$(ARCH):
 	wget https://storage.googleapis.com/kubernetes-release/release/$(KUBECTL_VERSION)/bin/linux/$(subst armv7,arm,$(ARCH))/kubectl -O $@

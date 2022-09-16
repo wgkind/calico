@@ -8,13 +8,22 @@ FLEXVOL_IMAGE   ?=pod2daemon-flexvol
 CSI_IMAGE       ?=csi
 REGISTRAR_IMAGE ?=node-driver-registrar
 BUILD_IMAGES    ?=$(FLEXVOL_IMAGE) $(CSI_IMAGE) $(REGISTRAR_IMAGE)
-RELEASE_FLAGS   ?=""
 
 ###############################################################################
 # Download and include ../lib.Makefile before anything else
 ###############################################################################
 
 include ../lib.Makefile
+
+# Calculate a timestamp for any build artefacts.
+DATE:=$(shell date -u +'%FT%T%z')
+
+LDFLAGS=-ldflags "\
+	-X $(PACKAGE_NAME)/pkg/lifecycle/startup.VERSION=$(GIT_VERSION) \
+	-X $(PACKAGE_NAME)/buildinfo.GitVersion=$(GIT_DESCRIPTION) \
+	-X $(PACKAGE_NAME)/buildinfo.BuildDate=$(DATE) \
+	-X $(PACKAGE_NAME)/buildinfo.GitRevision=$(GIT_COMMIT) \
+	$(RELEASE_LDFLAGS)"
 
 ###############################################################################
 
@@ -59,7 +68,7 @@ bin/flexvol-armv7: ARCH=armv7
 bin/flexvol-ppc64le: ARCH=ppc64le
 bin/flexvol-s390x: ARCH=s390x
 bin/flexvol-%: $(SRC_FILES)
-	$(DOCKER_RUN) -e CGO_ENABLED=0 $(CALICO_BUILD) go build -v -o bin/flexvol-$(ARCH) flexvol/flexvoldriver.go
+	$(DOCKER_RUN) -e CGO_ENABLED=0 $(CALICO_BUILD) go build -v -o bin/flexvol-$(ARCH) flexvol/flexvoldriver.go $(LDFLAGS)
 
 bin/csi-driver-amd64: ARCH=amd64
 bin/csi-driver-arm64: ARCH=arm64
@@ -67,7 +76,7 @@ bin/csi-driver-armv7: ARCH=armv7
 bin/csi-driver-ppc64le: ARCH=ppc64le
 bin/csi-driver-s390x: ARCH=s390x
 bin/csi-driver-%: $(SRC_FILES)
-	$(DOCKER_RUN) -e CGO_ENABLED=$(CGO_ENABLED) $(CALICO_BUILD) go build -v $(RELEASE_FLAGS) -o bin/csi-driver-$(ARCH) csidriver/main.go
+	$(DOCKER_RUN) -e CGO_ENABLED=$(CGO_ENABLED) $(CALICO_BUILD) go build -v -o bin/csi-driver-$(ARCH) csidriver/main.go $(LDFLAGS)
 
 UPSTREAM_REGISTRAR_PROJECT ?= kubernetes-csi/$(REGISTRAR_IMAGE)
 UPSTREAM_REGISTRAR_TAG     ?= v2.5.1
